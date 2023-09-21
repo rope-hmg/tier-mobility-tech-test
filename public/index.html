@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+        <style type="text/css">
+            #loading-spinner {
+                display: none;
+            }
+        </style>
+
+        <title>Url Shortener</title>
+    </head>
+
+    <body>
+        <script type="module">
+            const loading_spinner = document.getElementById("loading-spinner");
+            const url_form        = document.getElementById("url-form");
+            const url_input       = document.getElementById("url-input");
+            const url_output      = document.getElementById("url-output");
+
+            url_form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const value = url_input.value;
+
+                if (value.length > 0) {
+                    // Clear the old short url to avoid confusion.
+                    url_output.innerText = "";
+
+                    loading_spinner.style.display = "inline-block";
+
+                    const response = await fetch("/api/v1/shorten", {
+                        method: "POST",
+                        headers: {
+                            "Accept":       "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ url: value }),
+                    });
+
+                    // FIXME:
+                    // Handle invalid responses here.
+
+                    const json = await response.json();
+
+                    url_output.innerText = json.url;
+                    loading_spinner.style.display = "none";
+                }
+            });
+
+
+        </script>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">MicroURL</a>
+            </div>
+        </nav>
+
+        <article class=container>
+            <h1>Micro URL Generator</h1>
+
+            <form id="url-form">
+                <label for="url-input" class="form-label">Paste your URL here:</label>
+                <input type="input" id="url-input" class="form-control" aria-describedby="url-help-block">
+                <div id="url-help-block" class="form-text">
+                    Paste a URL here and press the button to generate a short version!
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Generate Micro URL
+
+                    <span id="loading-spinner">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="visually-hidden">Loading...</span>
+                    </span>
+                </button>
+
+                <section class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Your short url</h5>
+                        <span class="card-text" id="url-output"></span>
+                    </div>
+                </section>
+            </form>
+        </article>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    </body>
+</html>

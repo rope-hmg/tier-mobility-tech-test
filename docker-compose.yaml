@@ -1,0 +1,23 @@
+version: '3'
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - tier-net
+
+  shortener:
+    build:
+      context: .
+      dockerfile: shortener.Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongo:
+        condition: service_started
+    networks:
+      - tier-net
+
+networks:
+  tier-net:
